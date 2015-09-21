@@ -1,7 +1,12 @@
 # File intended only to be ran with GNU make. Use any other make program at your own risk!
 OUTPUT := liblc3.so
 CPPFLAGS := $(MASTER_CPP_FLAGS) -fPIC -Wall -DLINUX
-LDFLAGS := $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -Wl,-soname,$(OUTPUT) -L.
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	LDFLAGS := $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -Wl,-install_name,$(OUTPUT) -L.
+else
+	LDFLAGS := $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -Wl,-soname,$(OUTPUT) -L.
+endif
 LDLIBS := -lstdc++ -ldl
 CC := g++ $(ARCH_FLAGS)
 CXX := $(CC)
@@ -12,7 +17,7 @@ FILES := ExpressionEvaluator.o lc3_cmp.o lc3_debug.o lc3_expressions.o lc3_param
 $(OUTPUT) : $(FILES)
 	$(CC) $(LDFLAGS) $^ -o $(OUTPUT) $(LDLIBS)
 
-clean : 
+clean :
 	$(RM) -rf $(FILES) $(OUTPUT)
 
 install : $(OUTPUT)

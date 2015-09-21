@@ -2,7 +2,12 @@
 WXCPPFLAGS := $(shell wx-config --cppflags)
 WXCPPLIBS := $(shell wx-config --libs)
 CPPFLAGS := $(MASTER_CPP_FLAGS) -fPIC -Wall -I../liblc3 -I. $(WXCPPFLAGS)
-LDFLAGS = $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -L../liblc3 -Wl,-soname,$@
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+	LDFLAGS = $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -L../liblc3 -Wl,-install_name,$@
+else
+	LDFLAGS = $(MASTER_CPP_FLAGS) -fPIC -Wall -shared -L../liblc3 -Wl,-soname,$@
+endif
 LDLIBS := -llc3 $(WXCPPLIBS)
 CC := g++ $(ARCH_FLAGS)
 CXX := $(CC)
@@ -32,7 +37,7 @@ liblc3_colorlcd.so : colorlcd.o COLORLCDGUI.o
 liblc3_udiv.so : udiv.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-clean : 
+clean :
 	$(RM) -rf *.o *.so
 
 install : liblc3_random.so liblc3_second_timer.so liblc3_timer.so liblc3_multiply.so liblc3_bwlcd.so liblc3_colorlcd.so liblc3_udiv.so
